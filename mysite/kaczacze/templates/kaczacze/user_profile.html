@@ -1,0 +1,175 @@
+{% extends 'kaczacze/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+
+<script>
+     function scrollToLastPosition() {
+        var lastPosition = sessionStorage.getItem('lastPosition');
+        if (lastPosition) {
+            window.scrollTo({
+                top: lastPosition,
+                behavior: 'smooth' // Ustawienie efektu smooth scrolling
+            });
+            sessionStorage.removeItem('lastPosition');
+        }
+    }
+
+    // Funkcja do zapisywania aktualnej pozycji przed przejściem na inną stronę
+    window.onbeforeunload = function() {
+        sessionStorage.setItem('lastPosition', window.scrollY);
+    };
+
+    // Wywołanie funkcji scrollToLastPosition po załadowaniu strony
+    window.onload = function() {
+        scrollToLastPosition();
+    };
+</script>
+
+
+
+<div class="container mt-5">
+    <div class='media'>
+        <img class='rounded-circle account-img' src="{{ userP.profile.image.url }}">
+        <div class="media-body">
+            <h2 class="account-heading">{{ userP.username }}</h2>
+            <div id='bio_div'>
+                <p>Bio: <span id="bio">{{ userP.profile.bio }}</span></p>
+                <!-- Dodaj przycisk "Edytuj Bio" -->
+                {% if request.user == userP %}
+                <button id="editBioBtn">Edit Bio</button>
+                {% endif %}
+            </div>
+            <!-- Formularz edycji pola bio -->
+            <div id="editBioForm" style="display: none;" data-url="{% url 'editbio' %}">
+                <form id="bioForm" method="post">
+                    {% csrf_token %}
+                    {{ form_bio.as_p}}
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+            <!-- Inne informacje profilowe -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+            <script>
+            $(document).ready(function() {
+
+                jQuery.noConflict()
+                // Po kliknięciu przycisku "Edytuj Bio"
+                $('#editBioBtn').click(function() {
+                    $('#bio_div').hide();
+                    $('#editBioForm').show();
+                });
+
+                // Obsługa formularza edycji pola bio za pomocą AJAX
+                $('#bioForm').submit(function(event) {
+                    event.preventDefault(); // Zapobiegaj domyślnej akcji formularza
+
+                    var myDiv = document.getElementById("editBioForm");
+                    var url1 = myDiv.getAttribute("data-url");
+                    var formData = $(this).serialize();
+                    $.post({
+                        url: url1,
+                        data: formData,
+                        success: function(response) {
+                            $('#bio').text(response.bio);
+                            $('#bio_div').show();
+                            $('#editBioForm').hide();
+                        },
+                        error: function(xhr, errmsg, err) {
+                            console.log(xhr.status + ': ' + xhr.responseText);
+                        }
+                    });
+
+                });
+            });
+            </script>
+        </div>
+    </div>
+
+</div>
+{% for post in userposts %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="background-color: #676c74;">
+                <div class="card-header bg-primary text-white" style="background-color: #004080">
+                    <div style='float:left'><em><a href='{% url "profile" post.user.username %}' style="text-decoration: none; color:white;">{{ post.user }}</a></em></div>
+                    <div style='float:right'>
+                        {% if post.time %}
+                            <em>{{ post.time }}</em>
+                        {% endif %}
+                        <em>{{ post.date }}</em>
+                    </div>
+                </div>
+                <div class="card-body" style="background-color: #676c74;">
+                    <p>{{ post.content|linebreaksbr  }}</p>
+                </div>
+
+
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'dodaj_komentarz' post.id %}" class="mt-3">
+                    <div class="form-row align-items-center">
+                        <div class="col-md-9">
+                            <div class="form-group">
+
+                                {% csrf_token %}
+                                {{ form_komentarze.as_p }}
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            {% if user.is_authenticated %}
+                            <button type="submit" class="btn btn-primary" id='comment'>Dodaj komentarz</button>
+                            {% else %}
+                            <button type="button" onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'" class="btn btn-primary">Dodaj Komentarz</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+                {% else %}
+                    <div class="form-row align-items-center">
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <input type="text" readonly value="Zaloguj się, aby dodać komentarz" >
+
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+
+                            <button type="button" onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'" class="btn btn-primary" id='login-button2'>Dodaj Komentarz</button>
+
+                        </div>
+                    </div>
+                {% endif %}
+
+
+                <ul class="list-group list-group-flush" style="background-color: #676c74;">
+                    {% for komentarz in post.komentarze.all %}
+                    <div>
+                        <li class="list-group-item" style="background-color: #394048; color: white;">
+                            <div>
+                            <div style='float:left'><em><a href='{% url "profile" komentarz.user.username %}' style="text-decoration: none; color:white;">{{ komentarz.user }}</a>: &nbsp;&nbsp;&nbsp;</em></div>
+                            <div style='float:right'>
+
+                                <em>{{ komentarz.time }}</em>
+                                <em>{{ komentarz.date }}</em>
+                            </div>
+
+                            <div>{{ komentarz.content }}</div>
+                            </div>
+                            </li>
+                    </div>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
+
+{% endblock %}

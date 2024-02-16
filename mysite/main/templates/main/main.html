@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Impostor</title>
+    {% load static %}
+
+    <style>
+        .sections > .section {
+            width: 17.5%;
+            display: inline-block;
+            height: 95%;
+            background-color: lightblue;
+            margin: 1%;
+            position: relative;
+        }
+        html{ height: 100%;}
+        body{background-color:#e6bbc7; margin: 0; color: #3f181e;
+            padding: 0; height: 100%;}
+        img{width:100%;height:100%;}
+        .shuffle-div{width:100%; height:100%; background-color:#d591a3; float: left;}
+        .main{width:80%; height:60%; background-color: #d591a3; position: relative; margin: 10% auto;}
+
+
+        .first >.sections{
+            float:top;
+            margin-top:1%;
+            width:100%;
+            height:80%;
+        }
+        .section > .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: bottom 0.3s ease;
+            z-index:0;
+        }
+
+
+        .overlay-text {
+            color: white;
+            font-size: 20px;
+        }
+
+
+        .section:hover .overlay {
+            display: flex;
+        }
+        .first>.main-text{font-size:50px; width:100%;,height:20%;background-color:#c06278; float: top;}
+        #div3>.main-text2{font-size:50px; width:100%;,height:20%;background-color:#1e592e; float: top;}
+
+
+        #div1{width:100%; height:100%;top:0px; left:0px; background-color:#d591a3; position: absolute; display: none;}
+        #div2{width:100%; height:100%; bottom:0px; left:0px; display: block; background-color:#d591a3;}
+        #div3{width:100%; height:100%; bottom:0px; left:0px; display: none; background-color:#d591a3;}
+        h1{text-align:center; font-size:470%; display:block;}
+        h2{text-align:center; margin 0 auto; font-size:200%}
+        #er{text-align:center;}
+        #score{background-color: red; text-align:center; width:5%;height:5%; position: absolute; top: 9%; right:5%;font-size:200%; display: none;background-color:#d591a3;}
+        #score2{background-color: yellow; text-align:center; width:5%;height:4%; position: absolute; top: 5%; right:5%; font-size:200%; display: none;  background-color:#c06278;}
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+    <div id='score2'>Score</div>
+    <div id='score'></div>
+    <div class='main'>
+
+
+        <div class='first' id='div1'>
+            <div class='main-text'><h2 id='er'></h2></div>
+            <div class='sections'>
+            <div class='section' id="shuffle-div-1" >
+
+                <div class="shuffle-div">
+                    <img id="movie-1" src=""  onclick="shuffleDivs()">
+
+                </div>
+                <div class="overlay" id="shuffling-div-1" >
+                    <div class="overlay-text"></div>
+                </div>
+            </div>
+            <div class='section' id="shuffle-div-2" >
+
+                <div class="shuffle-div">
+                    <img id="movie-2" src=""  onclick="shuffleDivs()">
+
+                </div>
+                <div class="overlay" id="shuffling-div-2" >
+                    <div class="overlay-text"></div>
+                </div>
+            </div>
+            <div class='section' id="shuffle-div-3" >
+
+                <div class="shuffle-div" >
+                    <img id="movie-3" src="" onclick="shuffleDivs()" >
+
+                </div>
+                <div class="overlay" id="shuffling-div-3">
+                    <div class="overlay-text"></div>
+                </div>
+            </div>
+            <div class='section'  id="shuffle-div-4" >
+
+                <div class="shuffle-div">
+                    <img id="movie-4" src=""  onclick="shuffleDivs()">
+
+                </div>
+                <div class="overlay" id="shuffling-div-4">
+                    <div class="overlay-text"></div>
+                </div>
+            </div>
+            <div class='section' id="shuffle-div-5">
+                <div class="shuffle-div" >
+                    <img id="movie-5" src=""  onclick="shuffleDivs()">
+                </div>
+                <div class="overlay" id="shuffling-div-5">
+                    <div class="overlay-text"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class='second' id='div2' onclick='toggleDivs()'><h1>click there...</h1></div>
+        <div id='div3'><div class='main-text2'><h2></h2></div></div>
+    </div>
+
+    <script src="{% static 'main/shuffle_script.js' %}" defer></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>Sign in</title>
+    </head>
+    <body>
+        <h1>Log in</h1>
+        <form method='POST'>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Zaloguj się</button>
+            <input type='hidden' name='next' value='{{ request.path }}'>
+        </form>
+    </body>
+</html>

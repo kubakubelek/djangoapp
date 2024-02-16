@@ -1,0 +1,15 @@
+<html>
+   <head>
+       <title>Log in</title>
+   </head>
+    <body>
+        <form method="POST">
+            <label for="email">Email:</label>
+            <input type="text" name="email" id='email'>
+            <label for="password">Password:</label>
+            <input type="password" name="email" id='password'>
+            <input type="submit" name="submit" value="Log in">
+        </form>
+        <a href="{% url 'register' %}" ><button class="register_button">Register</button></a>
+    </body>
+</html>
