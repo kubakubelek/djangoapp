@@ -1,0 +1,26 @@
+{% load static %}
+<html>
+    <head>
+        <title>SocialMedia</title>
+        <link rel="stylesheet" href="{% static 'socialmedia/style.css' %}">
+
+    </head>
+    <body>
+        <header>
+            <div class='main_title'>
+            <h1>Users list</h1>
+            </div>
+            <div class='login_button'>
+            <button><a href="{% url 'login' %}">Log in</a></button>
+            </div>
+
+        </header>
+
+        <ul>
+            {% for user in user_list %}
+            <li><p>{{ user.nick }} </p></li>
+            {% endfor %}
+        </ul>
+
+    </body>
+</html>

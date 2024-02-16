@@ -1,0 +1,15 @@
+<html>
+<body>
+<p>Your guess was {{ guess }}</p>
+{% if not is_integer %}
+    <p>You should input a number</p>
+{% elif guess > 42 %}
+    <p>Too High</p>
+{% elif guess < 42 %}
+    <p>Too Loww</p>
+{% else %}
+    <p>Just Right</p>
+{% endif %}
+
+</body>
+</html>

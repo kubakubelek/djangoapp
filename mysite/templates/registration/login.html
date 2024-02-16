@@ -1,0 +1,27 @@
+
+{% extends 'kaczacze/base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center login-container">
+    <div class="col-md-6 col-lg-4">
+        <div class="card" "background-color: #676c74;">
+            <div class="card-header bg-primary text-white">
+                Login
+            </div>
+            <div class="card-body" style="background-color: #676c74;">
+                <form  method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+
+
+                </form>
+                <a  href="{% url 'register' %}" style='text-decoration: none; color:white'><button  class="btn btn-primary btn-block">Sign up</button></a
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

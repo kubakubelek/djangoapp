@@ -15,8 +15,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from genericviewsDemo.views import SignUp
+from kaczacze.views import MyLoginView
+from django.contrib.auth.views import LoginView, LogoutView
+
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path("polls/", include("polls.urls")),
+    path("", include("main.urls")), #important
+    path("views/", include("views.urls")),
+    path("number/", include("numbergame.urls")),
+    path("tmpl/", include("tmpl.urls")),
+    path("genericviewsDemo/", include("genericviewsDemo.urls")),
+    path("socialmedia/", include("socialmedia.urls"), name='socialmedia'),
+    path("visitnum/", include("visitnum.urls")),
     path("admin/", admin.site.urls),
+    path("accounts/login/", LoginView.as_view(), name='login'),
+    path('accounts/logout/', LogoutView.as_view(), name='logout'),
+    path('register/', SignUp.as_view(), name='register'),
+    path('kaczacze/', include("kaczacze.urls"), name='kaczacze'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

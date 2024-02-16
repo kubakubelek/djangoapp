@@ -1,0 +1,140 @@
+{% extends 'kaczacze/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<script>
+     function scrollToLastPosition() {
+        var lastPosition = sessionStorage.getItem('lastPosition');
+        if (lastPosition) {
+            window.scrollTo({
+                top: lastPosition,
+                behavior: 'smooth' // Ustawienie efektu smooth scrolling
+            });
+            sessionStorage.removeItem('lastPosition');
+        }
+    }
+
+    // Funkcja do zapisywania aktualnej pozycji przed przejściem na inną stronę
+    window.onbeforeunload = function() {
+        sessionStorage.setItem('lastPosition', window.scrollY);
+    };
+
+    // Wywołanie funkcji scrollToLastPosition po załadowaniu strony
+    window.onload = function() {
+        scrollToLastPosition();
+    };
+</script>
+
+
+
+{% if not users and not wpis_list %}
+    <div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="background-color: #676c74;">
+                <div class="card-header bg-primary text-white" style="background-color: #004080">0 wyszukiwan dla {{ query }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="background-color: #676c74;">
+                <div class="card-header bg-primary text-white" style="background-color: #004080">Wyszukiwania dla {{ query }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% for userprofile in users %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="background-color: #676c74;">
+                <div class="card-header bg-primary text-white" style="background-color: #004080"><em><a href='{% url "profile" userprofile.username %}' style="text-decoration: none; color:white;">{{ userprofile.username }}</a></em></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% for post in wpisy_list %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="background-color: #676c74;">
+                <div class="card-header bg-primary text-white" style="background-color: #004080">
+                    <div style='float:left'><em><a href='{% url "profile" post.user.username %}' style="text-decoration: none; color:white;">{{ post.user }}</a></em></div>
+                    <div style='float:right'>
+                        {% if post.time %}
+                            <em>{{ post.time }}</em>
+                        {% endif %}
+                        <em>{{ post.date }}</em>
+                    </div>
+                </div>
+                <div class="card-body" style="background-color: #676c74;">
+                    <p>{{ post.content|linebreaksbr  }}</p>
+                </div>
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'dodaj_komentarz' post.id %}" class="mt-3">
+                    <div class="form-row align-items-center">
+                        <div class="col-md-9">
+                            <div class="form-group">
+
+                                {% csrf_token %}
+                                {{ form_komentarze.as_p }}
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            {% if user.is_authenticated %}
+                            <button type="submit" class="btn btn-primary">Dodaj komentarz</button>
+                            {% else %}
+                            <button type="button" onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'" class="btn btn-primary">Dodaj Komentarz</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+                {% else %}
+                    <div class="form-row align-items-center">
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <input type="text" readonly value="Zaloguj się, aby dodać komentarz">
+
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+
+                            <button type="button" onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'" class="btn btn-primary">Dodaj Komentarz</button>
+
+                        </div>
+                    </div>
+                {% endif %}
+                <ul class="list-group list-group-flush" style="background-color: #676c74;">
+                    {% for komentarz in post.komentarze.all %}
+                        <li class="list-group-item" style="background-color: #394048; color: white;">
+                            <div>
+                            <div style='float:left'><em><a href='{% url "profile" komentarz.user.username %}' style="text-decoration: none; color:white;">{{ komentarz.user }}</a>: &nbsp;&nbsp;&nbsp;</em></div>
+                            <div style='float:right'>
+
+                                <em>{{ komentarz.time }}</em>
+                                <em>{{ komentarz.date }}</em>
+                            </div>
+
+                            <div>{{ komentarz.content }}</div>
+                            </div>
+                            </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <title>{{ movies.title }}</title>
+    </head>
+    <body>
+        <h1>{{ movies.title }}</h1>
+        <p> {{ movies.year }}</p>
+        <p>{{ movies.country.name }}</p>
+        {% if movies.director %}
+            <p{{ movies.director }}</p>
+        {% else %}
+            <p>Rezyser: nieznany</p>
+        {% endif %}
+        </p>
+    </body>
+</html>

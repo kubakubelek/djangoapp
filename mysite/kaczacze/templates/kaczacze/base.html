@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaczacze</title>
+    <!-- Linki do plików CSS Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body style="background-color: #676c74;"> <!-- Ustawienie ciemnego tła -->
+
+    <!-- Nawigacja Bootstrap -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #004080; position: sticky; top:0; z-index:100;"> <!-- Zmiana koloru tła na ciemniejszy niebieski -->
+        <a class="navbar-brand text-white" href="{% url 'main' %}">Kaczacze.pl</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <!-- Pole wyszukiwania -->
+                    <form class="form-inline my-2 my-lg-0"  method="post" onsubmit="return redirectToSearch()">
+                        {% csrf_token %}
+                        <input class="form-control mr-sm-2" type="search" placeholder="Szukaj..." aria-label="Search" name="search" id="searchInput">
+                        <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Szukaj</button>
+                    </form>
+
+                    <script>
+                        function redirectToSearch() {
+                            var searchQuery = document.getElementById('searchInput').value;
+                            var encodedSearchQuery = encodeURIComponent(searchQuery);
+                            window.location.href = "/kaczacze/search/" + encodedSearchQuery;
+                            return false;
+                        }
+                    </script>
+
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#">Lista użytkowników</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'logout' %}?next=/kaczacze" >Wyloguj się</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'profile' request.user %}" >Moj Profil</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'login' %}?next={{ request.path }}" id='login-button'>Zaloguj się</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+    </nav>
+
+    <div class="container-fluid py-4" style="background-color: #676c74;"> <!-- Zmiana tła na bokach kontenera -->
+        <div class="row">
+            <div class="col-md-9 offset-md-1"> <!-- Zmiana szerokości na 9 i ustawienie offsetu na 1 -->
+                <!-- Treść strony -->
+                <div class="content" style="background-color: #343a40; color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    {% block content %}Zawartość Główna{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skrypty Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
