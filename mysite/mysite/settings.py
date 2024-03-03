@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
-LOGIN_REDIRECT_URL = '/kaczacze'
+LOGIN_REDIRECT_URL = '/'
 
 # Application definition
 
@@ -41,14 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'polls',
-    'main',
-    'tmpl',
-    'views',
-    'numbergame',
-    'genericviewsDemo',
-    'socialmedia',
-    'visitnum',
+    'bootstrap4',
+    'crispy_bootstrap4',
     'kaczacze',
     'crispy_forms',
 ]
@@ -131,11 +125,16 @@ USE_TZ = True
 
 #STATIC_URL = 'static/'
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['/home/kubakubelek/django_projects/mysite/main/static/main','/home/kubakubelek/django_projects/mysite/socialmedia/static/socialmedia']
-STATIC_ROOT = '/home/kubakubelek/django_projects/mysite/static'
+#STATICFILES_DIRS = ['/home/kubakubelek/django_projects/mysite/main/static/main','/home/kubakubelek/django_projects/mysite/socialmedia/static/socialmedia']
+STATIC_ROOT = '/mysite/static'
 
 MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
 MEDIA_URL='/media/'
+
+# settings.py
+
+LOGOUT_REDIRECT_URL = '/'  # Przykładowy adres przekierowania po wylogowaniu
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
