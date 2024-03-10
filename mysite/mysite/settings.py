@@ -21,15 +21,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m!hj_dy&bdpegx4(!p9a#yo)z9grwc!@f#yqo9y^&u+1t!6n2#'
+#SECRET_KEY = 'django-insecure-m!hj_dy&bdpegx4(!p9a#yo)z9grwc!@f#yqo9y^&u+1t!6n2#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
 
 LOGIN_REDIRECT_URL = '/'
+
+# Support env variables from .env file if defined
+import os
+from dotenv import load_dotenv
+env_path = load_dotenv(os.path.join(BASE_DIR, '.env'))
+load_dotenv(env_path)
+# SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 'django-insecure-&psk#na5l=p3q8_a+-$4w1f^lt3lx1c@d*p4x$ymm_rn7pwb87'
+import os
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-m!hj_dy&bdpegx4(!p9a#yo)z9grwc!@f#yqo9y^&u+1t!6n2#')
+# SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True
+#DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+
+
+
+
+
 
 # Application definition
 
@@ -49,6 +67,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -76,6 +95,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
+
+CSRF_COOKIE_SECURE=True
+SESSION_COOKIE_SECURE=True
+SECURE_SSL_REDIRECT=True
+
+# Update database configuration from $DATABASE_URL environment variable (if defined)
+
+
 
 
 # Database
@@ -108,6 +135,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+import dj_database_url
+
+if 'DATABASE_URL' in os.environ:
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=500,
+        conn_health_checks=True,
+    )
+
+
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -123,10 +161,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
+DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+STATICFILES_STORAGE = "storages.backends.s3.S3Storage"
+from .passw import *
+AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET_NAME=AWS_STORAGE_BUCKET_NAME
+AWS_S3_REGION_NAME=AWS_S3_REGION_NAME
+
 #STATIC_URL = 'static/'
 STATIC_URL = '/static/'
 #STATICFILES_DIRS = ['/home/kubakubelek/django_projects/mysite/main/static/main','/home/kubakubelek/django_projects/mysite/socialmedia/static/socialmedia']
-STATIC_ROOT = '/mysite/static'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
 MEDIA_URL='/media/'
@@ -142,3 +188,10 @@ LOGOUT_REDIRECT_URL = '/'  # Przykładowy adres przekierowania po wylogowaniu
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# Static file serving.
+# https://whitenoise.readthedocs.io/en/stable/django.html#add-compression-and-caching-support
+
+
+
+
