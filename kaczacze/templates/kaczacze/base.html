@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaczacze</title>
+    <!-- Linki do plików CSS Bootstrap -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+{% load custom_filters %}
+{% load crispy_forms_tags %}
+<style>
+    .container-fluid py-4{
+
+        background-image: url('/static/okun.jpg');
+        background-repeat: repeat;
+    }
+
+
+
+
+    .comment-item {
+        padding: 0.5em 1em !important;
+        margin-bottom: 1em !important;
+    }
+
+    .comment-item:nth-child(odd) {
+        background-color: #3e434a !important;
+    }
+
+    .comment-item:nth-child(even) {
+        background-color: #394048 !important;
+    }
+
+    .trashIcon:hover{
+        color:#cccccc;
+    }
+    .com{
+        font-size: 0.8rem;
+
+    }
+    .thick-line{
+        color: blue;
+        height: 0.2em;
+        background-color: #676c74;
+    }
+    .userLink{
+        color:white;
+    }
+
+    .userLink:hover{
+         color:#cccccc;
+    }
+    a{
+    text-decoration:none;
+    color:white;
+    }
+    .word {
+      margin: auto;
+      color: white;
+
+      font-size:2em;
+      text-shadow: 5px 2px #222324, 2px 4px #222324, 3px 5px #222324;
+    }
+
+
+    .right-bottom-div {
+        position: fixed;
+        bottom: 2%;
+        right: 2%;
+        width: 11em; /* Szerokość diva */
+        height: 5em; /* Wysokość diva */
+        background-color: #676c74;
+        border: 0.3em solid #004080;
+        border-radius:1em;
+        text-align: center;
+
+    }
+    .form-group{
+    margin-bottom:0;
+    }
+</style>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+
+
+<body > <!-- Ustawienie ciemnego tła -->
+
+
+    <!-- Nawigacja Bootstrap -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #004080; position: sticky; top:0; z-index:100;"> <!-- Zmiana koloru tła na ciemniejszy niebieski -->
+        <a class="navbar-brand text-white" href="{% url 'main' %}">Kaczacze.pl</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <!-- Pole wyszukiwania -->
+                    <form class="form-inline my-2 my-lg-0"  method="post" onsubmit="return redirectToSearch()">
+                        {% csrf_token %}
+                        <input class="form-control mr-sm-2" type="search" placeholder="Szukaj..." aria-label="Search" name="search" id="searchInput">
+                        <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Szukaj</button>
+                    </form>
+
+                    <script>
+                        function redirectToSearch() {
+                            var searchQuery = document.getElementById('searchInput').value;
+                            var encodedSearchQuery = encodeURIComponent(searchQuery);
+                            window.location.href = "/search/" + encodedSearchQuery;
+                            return false;
+                        }
+                    </script>
+
+                </li>
+
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'logout' %}" >Wyloguj się</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'profile' request.user %}" >Moj Profil</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'login' %}?next={{ request.path }}" id='login-button'>Zaloguj się</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+    </nav>
+
+    <div class="container-fluid py-4" style="background-image: url('/media/background/okun.jpg'); background-size: 25%; background-attachment: fixed;
+        background-repeat: repeat; height:100%; min-height: 95vh;" > <!-- Zmiana tła na bokach kontenera -->
+        <div class="row">
+            <div class="col-md-9 offset-md-1" style="margin: 0 auto;" > <!-- Zmiana szerokości na 9 i ustawienie offsetu na 1 -->
+                <!-- Treść strony -->
+                <div class="content" style=" color: #fff; ">
+                    {% block content %}Zawartość Główna{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+<div id="delete-message" style="display: none;" class="alert alert-success mt-3" role="alert">
+                                Post został pomyślnie usunięty.
+                            </div>
+<div class="modal" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content" style='background-color: #004080;'>
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel" style='border: none; color: white;'>Czy na pewno chcesz usunąć ten post?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                        </button>
+                                      </div>
+
+                                      <div class="modal-footer" style='border: none;'>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                                        <button type="button" class="btn btn-danger" id='confirmDeleteBtn'>Usuń</button>
+                                      </div>
+                                    </div>
+                                  </div>
+</div>
+
+<div id="delete-message" style="display: none;" class="alert alert-success mt-3" role="alert">
+                                Post został pomyślnie usunięty.
+                            </div>
+<div class="modal" id="deleteConfirmationModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content" style='background-color: #004080;'>
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel" style='border: none; color: white;'>Czy na pewno chcesz usunąć ten komentarz?</h5>
+                                        <button type="button" class="close 2" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                        </button>
+                                      </div>
+
+                                      <div class="modal-footer" style='border: none;'>
+                                        <button type="button" class="btn btn-secondary 2" data-dismiss="modal">Anuluj</button>
+                                        <button type="button" class="btn btn-danger 2" id='confirmDeleteBtn2'>Usuń</button>
+                                      </div>
+                                    </div>
+                                  </div>
+</div>
+
+
+
+
+
+<script>
+    var words = ['Log in', 'or Register'],
+    part,
+    i = 0,
+    offset = 0,
+    len = words.length,
+    forwards = true,
+    skip_count = 0,
+    skip_delay = 15,
+    speed = 90;
+var wordflick = function () {
+  setInterval(function () {
+    if (forwards) {
+      if (offset >= words[i].length) {
+        ++skip_count;
+        if (skip_count == skip_delay) {
+          forwards = false;
+          skip_count = 0;
+        }
+      }
+    }
+    else {
+      if (offset == 0) {
+        forwards = true;
+        i++;
+        offset = 0;
+        if (i >= len) {
+          i = 0;
+        }
+      }
+    }
+    part = words[i].substr(0, offset);
+    if (skip_count == 0) {
+      if (forwards) {
+        offset++;
+      }
+      else {
+        offset--;
+      }
+    }
+    jQuery('.word').text(part);
+  },speed);
+};
+
+jQuery(document).ready(function($){
+  jQuery.noConflict()
+  wordflick();
+});
+</script>
+
+
+
+
+    <script>
+    function zmienCosCo5Sekund() {
+        console.log("Wywołanie funkcji co 5 sekund");
+        var background=document.getElementsByClassName("container-fluid py-4");
+        var elem=background[0]
+
+        console.log(elem.style.backgroundImage);
+
+        if(elem.style.backgroundImage==='url("/media/background/okun.jpg")'){
+            elem.style.backgroundImage='url("/media/background/okun2.png")';
+            console.log("TO TEN");
+        } else if(elem.style.backgroundImage==='url("/media/background/okun2.png")'){
+            elem.style.backgroundImage='url("/media/background/okun3.jpg")';
+            console.log("TO TEN2");
+        }else if(elem.style.backgroundImage==='url("/media/background/okun3.jpg")'){
+            elem.style.backgroundImage='url("/media/background/okun.jpg")';
+            console.log("TO TEN2");
+        }
+
+
+    }
+
+    setInterval(zmienCosCo5Sekund, 5000);
+    </script>
+
+
+    <script>
+            jQuery(document).ready(function($) {
+
+                jQuery.noConflict()
+                // Po kliknięciu przycisku "Edytuj Bio"
+                $('#editBioBtn').click(function() {
+                    $('#bio_div').hide();
+                    $('#editBioForm').show();
+                });
+
+                // Obsługa formularza edycji pola bio za pomocą AJAX
+                $('#bioForm').submit(function(event) {
+                    event.preventDefault(); // Zapobiegaj domyślnej akcji formularza
+
+                    var myDiv = document.getElementById("editBioForm");
+                    var url1 = myDiv.getAttribute("data-url");
+                    var formData = $(this).serialize();
+                    $.post({
+                        url: url1,
+                        data: formData,
+                        success: function(response) {
+                            $('#bio').text(response.bio);
+                            $('#bio_div').show();
+                            $('#editBioForm').hide();
+                        },
+                        error: function(xhr, errmsg, err) {
+                            console.log(xhr.status + ': ' + xhr.responseText);
+                        }
+                    });
+
+                });
+            });
+    </script>
+
+
+                <script>
+
+                    jQuery(document).ready(function($){
+
+
+                        $('.like_post').on('click', function() {
+                            postId = $(this).data('postid');
+                            id=$(this).attr('id');
+
+                            var url = document.getElementById(id).getAttribute('url');
+
+                            $.ajax({
+                                url: url,
+                                type: "POST",
+                                data: {'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                                success: function(response) {
+                                    // Aktualizacja liczby polubień
+                                    $('#likes' + postId).fadeOut(function() {
+
+                                        var color = $('#like_button' + postId).css("background-color");
+                                        console.log(color);
+                                        if(color==='rgb(93, 222, 127)'){
+                                           $(this).text(response.VoteCount).fadeIn();
+                                           $('#like_button' + postId).css("background-color", "white");
+                                        }else{
+                                            $(this).text(response.VoteCount).fadeIn();
+                                            $('#like_button' + postId).css("background-color", "#5dde7f");
+                                        }
+                                        var color = $('#unlike_button' + postId).css("background-color");
+                                        if(color==='rgb(199, 101, 101)'){
+                                            $('#unlike_button' + postId).css("background-color", "white");
+                                        }
+
+                                    }); // Poprawiono wyświetlanie liczby polubień
+
+                                },
+                                error: function(xhr, errmsg, err) {
+                                    // Obsługa błędu - możesz wyświetlić komunikat o błędzie lub przekierować użytkownika
+                                    alert("Failed to like the post!");
+                                }
+                            });
+                        });
+
+
+                        $('.unlike_post').on('click', function() {
+                            postId = $(this).data('postid');
+                            id=$(this).attr('id');
+
+                            var url = document.getElementById(id).getAttribute('url');
+
+                            $.ajax({
+                                url: url,
+                                type: "POST",
+                                data: {'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                                success: function(response) {
+                                    // Aktualizacja liczby polubień
+
+                                    $('#likes' + postId).fadeOut(function() {
+                                        var color = $('#unlike_button' + postId).css("background-color");
+                                        console.log(color);
+                                        if(color==='rgb(199, 101, 101)'){
+                                           $(this).text(response.VoteCount).fadeIn();
+                                           $('#unlike_button' + postId).css("background-color", "white");
+                                        }else{
+                                            $(this).text(response.VoteCount).fadeIn();
+                                            $('#unlike_button' + postId).css("background-color", "#c76565");
+                                        }
+                                        var color = $('#like_button' + postId).css("background-color");
+                                        if(color==='rgb(93, 222, 127)'){
+                                            $('#like_button' + postId).css("background-color", "white");
+                                        }
+
+                                    });
+
+
+
+
+
+                                },
+                                error: function(xhr, errmsg, err) {
+                                    // Obsługa błędu - możesz wyświetlić komunikat o błędzie lub przekierować użytkownika
+                                    alert("Failed to like the post!");
+                                }
+                            });
+                        });
+
+
+                    });
+                </script>
+
+
+
+
+                <script>
+
+
+                function toggleElements(button) {
+
+                    var postId = button.getAttribute('data-classid');
+                    var elements = document.querySelectorAll(".comment"+postId+":nth-child(n+4)");
+
+                    var comments = document.querySelectorAll('.comment' + postId);
+
+// Zainicjuj zmienną dla zliczonych komentarzy
+
+                    if (button.innerText === "Zwiń"){
+                        button.innerText = "Rozwiń więcej";
+                        var commentsCount=0;
+                        comments.forEach(function(comment) {
+                            if(commentsCount < 3){
+                                console.log(comment.getAttribute('toshow'));
+                                console.log(comment.style.display);
+                                if (comment.style.display === "block" && comment.getAttribute('toshow') !== 'false') {
+                                    commentsCount++;
+                                    console.log(commentsCount);
+                                }
+                            }else{
+                                comment.style.display = "none";
+                            }
+
+                        });
+
+
+                    }else{
+                        button.innerText = "Zwiń";
+                        comments.forEach(function(comment) {
+                            if (comment.style.display === "none" && comment.getAttribute('toshow') !== 'false') {
+                                comment.style.display = "block";
+                                console.log(comment.style.display);
+                            }
+                        });
+                    }
+
+
+
+                }
+
+
+                </script>
+
+
+                <script>
+
+
+                jQuery(document).ready(function($) {
+                    $.noConflict();
+                    var postIdToDelete;
+                    var id;
+                    var dataClassId;
+
+
+
+
+
+
+
+
+                    // Przechwytywanie kliknięcia przycisku usuwania i ustawienie odpowiedniego postIdToDelete
+                    $('.delconfrm').on('click', function() {
+                        postIdToDelete = $(this).data('postid');
+                        id=$(this).attr('id');
+                        $('#deleteConfirmationModal').modal('show');
+                    });
+
+                    // Obsługa kliknięcia przycisku "Delete" w modalu potwierdzenia
+                    $('#confirmDeleteBtn').on('click', function() {
+                        $('#deleteConfirmationModal').modal('hide'); // Ukrycie modala potwierdzenia
+
+                            // Ukrycie karty zawierającej przycisk usuwania
+                        $('#'+id).closest('.card').hide();
+                        // Wywołanie zapytania AJAX do usunięcia postu
+                        $.ajax({
+                            url: '/kaczacze/post/delete/' + postIdToDelete, // Zmodyfikuj adres URL zgodnie z twoimi wymaganiami
+                            type: 'POST',
+                            data: {'csrfmiddlewaretoken': '{{ csrf_token }}'},
+
+
+                            error: function(xhr, errmsg, err) {
+                                // Obsługa błędu
+                            }
+                        });
+                    })
+
+                    $('.delconfrm2').on('click', function() {
+                        postIdToDelete = $(this).data('postid');
+                        dataClassId = $(this).data('classid');
+                        id=$(this).attr('id');
+                        $('#deleteConfirmationModal2').modal('show');
+                    });
+
+                    $('#confirmDeleteBtn2').on('click', function() {
+                        $('#deleteConfirmationModal2').modal('hide');
+                        $('#'+id).closest('.comment'+dataClassId).hide();
+                        $('#'+id).closest('.comment'+dataClassId).attr('toshow', 'false');
+
+
+                        var comments = document.querySelectorAll('.comment' + dataClassId);
+                        var badcomment= $('#'+id).closest('.comment'+dataClassId)
+
+
+                        var post = document.getElementById('post'+dataClassId);
+                        console.log(post);
+                        var liczbaKomentarzy = post.getAttribute('data-komentarze');
+                        liczbaKomentarzy=liczbaKomentarzy-1;
+                        post.setAttribute('data-komentarze', liczbaKomentarzy);
+
+
+
+
+
+// Zainicjuj zmienną dla zliczonych komentarzy
+                        var visibleCommentsCount = 0;
+
+                        // Iteruj przez każdy znaleziony element
+                        comments.forEach(function(comment) {
+                            // Sprawdź właściwość display za pomocą getComputedStyle
+                            var displayStyle = window.getComputedStyle(comment).getPropertyValue('display');
+                            // Jeśli display jest inny niż 'none', zwiększ licznik
+                            if (displayStyle !== 'none') {
+                                visibleCommentsCount++;
+                            }
+                        });
+
+
+                        var expandButton = document.getElementById("rozwin" + dataClassId);
+
+                        if (visibleCommentsCount == 2 && expandButton && expandButton.innerText === "Rozwiń więcej komentarzy"){
+
+
+                            // Znajdź przycisk "Rozwiń"
+
+
+                            // Sprawdź, czy tekst przycisku to "Rozwiń"
+
+                                // Znajdź pierwszy ukryty komentarz
+                                var foundHiddenComment = false;
+                                comments.forEach(function(comment) {
+                                    if (comment.style.display === "none"  && !foundHiddenComment && comment.getAttribute('toshow') !== 'false' ) {
+                                        comment.style.display = "block";
+                                        foundHiddenComment = true;
+
+
+
+                                        console.log(comment)
+
+                                    }
+                                });
+
+                                // Jeśli znaleziono ukryty komentarz, zmień tekst przycisku na "Rozwiń"
+
+                            }
+
+
+
+                        // Wyświetl liczbę komentarzy widocznych na stronie
+                        console.log("Liczba widocznych komentarzy:", visibleCommentsCount);
+
+
+                        var count = comments.length;
+                        var other = count-visibleCommentsCount;
+
+                        console.log(liczbaKomentarzy);
+                        if (liczbaKomentarzy < 4){
+                            console.log("usuwanie")
+                            var button = document.getElementById("rozwin"+dataClassId);
+
+                            if (button !== null) {
+
+
+                                button.style.display = "none";
+
+                            }
+
+                        }
+
+                        // Sprawdź długość listy elementów
+
+
+
+                        $.ajax({
+                            url: '/kaczacze/comment/delete/' + postIdToDelete,
+                            type: 'POST',
+                            data: {'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                            });
+
+                    })
+
+                });
+        </script>
+
+
+</body>
+</html>
