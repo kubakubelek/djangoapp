@@ -7,4 +7,4 @@ class KaczaczeConfig(AppConfig):
 
 
     def ready(self):
-        import kaczacze.signals
+        pass

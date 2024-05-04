@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import include, path
 #from genericviewsDemo.views import SignUp
 from kaczacze import views
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 
 from django.conf import settings
 from django.conf.urls.static import static
