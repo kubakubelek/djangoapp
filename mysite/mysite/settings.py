@@ -114,7 +114,7 @@ DATABASES = {
         'NAME': 'djangodb',
         'USER': 'kubakubelek',
         'PASSWORD': '27Abuk04',
-        'HOST': 'myrdshost.rds.amazonaws.com',
+        'HOST': 'djangodb.c56cqyyy0x8l.eu-north-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
