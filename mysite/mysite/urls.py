@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 #from genericviewsDemo.views import SignUp
-from kaczacze import views
+from mysite.kaczacze import views
 from django.contrib.auth.views import LoginView
 
 from django.conf import settings
@@ -28,7 +28,7 @@ urlpatterns = [
     path("accounts/login/", LoginView.as_view(), name='login'),
     path('accounts/logout/', views.custom_logout, name='logout'),
     path('register/', views.SignUp.as_view(), name='register'),
-    path('', include("kaczacze.urls"), name='kaczacze'),
+    path('', include("mysite.kaczacze.urls"), name='kaczacze'),
 ]
 
 if settings.DEBUG:

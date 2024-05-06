@@ -34,8 +34,10 @@ LOGIN_REDIRECT_URL = '/'
 # Support env variables from .env file if defined
 import os
 
-env_path = load_dotenv(os.path.join(BASE_DIR, '.env'))
-load_dotenv(env_path)
+#env_path = load_dotenv(os.path.join(BASE_DIR, '.env'))
+#load_dotenv(env_path)
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-&psk#na5l=p3q8_a+-$4w1f^lt3lx1c@d*p4x$ymm_rn7pwb87'
 import os
@@ -61,7 +63,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap4',
     'crispy_bootstrap4',
-    'kaczacze',
+    'mysite.kaczacze',
+    'mysite',
     'crispy_forms',
 ]
 
@@ -76,7 +79,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'mysite.urls'
+ROOT_URLCONF = 'mysite.mysite.urls'
 
 TEMPLATES = [
     {
@@ -94,7 +97,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mysite.wsgi.application'
+WSGI_APPLICATION = 'mysite.mysite.wsgi.application'
 
 CSRF_COOKIE_SECURE=True
 SESSION_COOKIE_SECURE=True
@@ -165,13 +168,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
-STATICFILES_STORAGE = "storages.backends.s3.S3Storage"
-from passw import *
-AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY
-AWS_STORAGE_BUCKET_NAME=AWS_STORAGE_BUCKET_NAME
-AWS_S3_REGION_NAME=AWS_S3_REGION_NAME
+#DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+#STATICFILES_STORAGE = "storages.backends.s3.S3Storage"
+#from my_passw import  *
+#AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID
+#AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY
+#AWS_STORAGE_BUCKET_NAME=AWS_STORAGE_BUCKET_NAME
+#AWS_S3_REGION_NAME=AWS_S3_REGION_NAME
 
 #STATIC_URL = 'static/'
 STATIC_URL = '/static/'
